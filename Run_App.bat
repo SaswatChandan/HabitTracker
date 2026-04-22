@@ -1,0 +1,6 @@
+@echo off
+echo Starting Gamified Habit Tracker...
+echo Opening in App Mode using Microsoft Edge...
+set URL="file:///%~dp0index.html"
+start msedge --app=%URL%
+exit

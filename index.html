@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spreadsheet Habit Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header-banner">
+        <h1>Pov: i literally turned my life into a game</h1>
+    </div>
+
+    <!-- SPREADSHEET MOCKUP FRAME -->
+    <div class="spreadsheet-container">
+        <div class="spreadsheet" id="spreadsheet">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+    
+    <!-- GAMIFICATION & ADD HABIT -->
+    <div class="toolbar">
+        <button id="addHabitBtn" class="btn">+ Add Habit</button>
+        <button id="resetBtn" class="btn btn-outline">↻ Reset</button>
+    </div>
+
+    <div class="stats-cards">
+        <div class="card">
+            <div class="card-title">🔥 Overall Streak</div>
+            <div class="card-value" id="streakCount">0</div>
+        </div>
+        <div class="card">
+            <div class="card-title">🏆 Level</div>
+            <div class="card-value" id="levelDisplay">Lv. 1</div>
+        </div>
+        <div class="card">
+            <div class="card-title">⭐ XP Score</div>
+            <div class="card-value" id="xpScore">0</div>
+        </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-container">
+        <div class="chart-box">
+            <h3>Completion Rate</h3>
+            <div style="height: 200px;">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-box">
+            <h3>Habit Performance</h3>
+            <div style="height: 200px;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

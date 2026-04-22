@@ -1,0 +1,14 @@
+{
+  "name": "gamified-habit-tracker",
+  "version": "1.0.0",
+  "description": "Gamified Habit Tracker with Calendar and Analytics",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^29.1.5"
+  }
+}
