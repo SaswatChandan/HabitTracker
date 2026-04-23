@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spreadsheet Habit Tracker</title>
+    <!-- Embedded Glowing SVG Favicon matching the App Logo -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%234F46E5'/><stop offset='100%25' stop-color='%23EC4899'/></linearGradient></defs><path d='M50 15 L85 35 L85 70 L50 90 L15 70 L15 35 Z' fill='none' stroke='url(%23g)' stroke-width='6'/><path d='M50 35 L75 50 L50 65 L25 50 Z' fill='url(%23g)' opacity='0.8'/><path d='M50 65 L50 90 M25 50 L15 70 M75 50 L85 70' stroke='url(%23g)' stroke-width='4' opacity='0.6'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -73,6 +75,7 @@
         <!-- GAMIFICATION & ADD HABIT -->
         <div class="toolbar">
             <button id="addHabitBtn" class="btn">+ Add Habit</button>
+            <button id="themeToggleBtn" class="btn btn-outline">☀️ Light Mode</button>
             <button id="resetBtn" class="btn btn-outline">↻ Reset</button>
             <button id="logoutBtn" class="btn btn-outline" style="margin-left: auto;">Sign Out</button>
         </div>

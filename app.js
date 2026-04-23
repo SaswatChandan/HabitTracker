@@ -401,3 +401,30 @@ if(resetBtn) {
         }
     });
 }
+
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+let isLightMode = localStorage.getItem('theme') === 'light';
+
+if (isLightMode && themeToggleBtn) {
+    document.documentElement.setAttribute('data-theme', 'light');
+    themeToggleBtn.textContent = '🌙 Dark Mode';
+    if(typeof Chart !== 'undefined') Chart.defaults.color = '#000';
+}
+
+if(themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        isLightMode = !isLightMode;
+        if(isLightMode) {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggleBtn.textContent = '🌙 Dark Mode';
+            localStorage.setItem('theme', 'light');
+            if(typeof Chart !== 'undefined') Chart.defaults.color = '#000';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            themeToggleBtn.textContent = '☀️ Light Mode';
+            localStorage.setItem('theme', 'dark');
+            if(typeof Chart !== 'undefined') Chart.defaults.color = '#fff';
+        }
+        updateCharts(); // Re-render charts with new text color
+    });
+}
