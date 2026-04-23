@@ -213,7 +213,7 @@ function renderSpreadsheet() {
     });
 
     // --- PROGRESS ROW (Bottom) ---
-    const progressRow = rowNumOffst + state.habits.length + 2;
+    const progressRow = state.habits.length + 1;
     createCell(container, progressRow, 'cell row-header');
     createCell(container, 'Daily Progress', 'cell progress-cell', 'text-align: right; justify-content: flex-end; padding-right: 12px;');
     
