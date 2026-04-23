@@ -54,14 +54,24 @@ onAuthStateChanged(auth, async (user) => {
         loginScreen.style.display = 'none';
         appContainer.style.display = 'block';
         
-        // Render empty skeleton so we don't accidentally let them edit default habits and overwrite cloud
-        state = { habits: [], xp: 0, level: 1 };
-        renderSpreadsheet(); 
+        // OFFLINE FIRST: Load from local backup instantly while cloud syncs in background
+        const backup = localStorage.getItem(`habitBackup_${currentUser.uid}`);
+        if (backup) {
+            try { state = JSON.parse(backup); } catch(e) { state = { habits: [], xp: 0, level: 1 }; }
+        } else {
+            state = { habits: [], xp: 0, level: 1 };
+        }
         
-        await loadState(); // Takes time to fetch from cloud
         updateStats();
         updateCharts();
-        renderSpreadsheet();
+        renderSpreadsheet(); 
+        
+        // Let the cloud sync happen in the background without freezing the UI
+        loadState().then(() => {
+            updateStats();
+            updateCharts();
+            renderSpreadsheet();
+        });
     } else {
         currentUser = null;
         loginScreen.style.display = 'flex';
