@@ -100,13 +100,17 @@ async function loadState() {
         if (docSnap.exists()) {
             state = docSnap.data();
             if (!state.habits) state.habits = [];
+            localStorage.setItem(`habitBackup_${currentUser.uid}`, JSON.stringify(state));
         } else {
-            state = getDefaultState();
+            let backup = localStorage.getItem(`habitBackup_${currentUser.uid}`);
+            state = backup ? JSON.parse(backup) : getDefaultState();
             await saveState();
         }
     } catch (err) {
-        console.error("Error loading state", err);
-        alert("Firestore Error: Could not connect to the cloud database. Your database might be in locked mode, or you may need to enable Firestore in your Firebase Console.");
+        console.error("Firestore Loading Error:", err);
+        // Fallback gracefully to local storage if cloud is blocked
+        let backup = localStorage.getItem(`habitBackup_${currentUser.uid}`);
+        state = backup ? JSON.parse(backup) : getDefaultState();
     }
 }
 
@@ -122,11 +126,11 @@ async function saveState() {
     }
     
     try {
+        localStorage.setItem(`habitBackup_${currentUser.uid}`, JSON.stringify(state));
         const docRef = doc(db, "users", currentUser.uid);
         await setDoc(docRef, state);
     } catch (err) {
-        console.error("Error saving state to database", err);
-        alert("Failed to save to cloud. Ensure your Firestore Database is created and in Test Mode.");
+        console.error("Firestore Save Error. Saved locally instead.", err);
     }
 }
 
