@@ -228,3 +228,41 @@ body {
     padding: 20px;
 }
 .chart-box h3 { margin-top: 0; margin-bottom: 15px; font-size: 16px; color: #aaa; text-align: center;}
+
+/* Responsive Design for Mobile/Phone Screens */
+@media screen and (max-width: 768px) {
+    .stats-cards {
+        flex-direction: column;
+    }
+    
+    .charts-container {
+        flex-direction: column;
+    }
+
+    .spreadsheet-container {
+        padding: 20px 10px;
+        border-radius: 20px;
+    }
+    
+    .header-banner h1 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        width: 100%;
+        max-width: 400px;
+        gap: 10px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding: 15px 5px;
+    }
+}
