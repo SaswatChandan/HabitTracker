@@ -48,14 +48,18 @@ body {
 }
 
 .app-logo {
-    width: 40px;
-    height: 40px;
-    animation: floatLogo 4s ease-in-out infinite;
+    width: 45px;
+    height: 45px;
+    animation: float3D 6s ease-in-out infinite;
+    transform-style: preserve-3d;
 }
 
-@keyframes floatLogo {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
+@keyframes float3D {
+    0% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+    25% { transform: translateY(-5px) rotateY(15deg) rotateX(5deg); }
+    50% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+    75% { transform: translateY(5px) rotateY(-15deg) rotateX(-5deg); }
+    100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
 }
 
 .glow-text {
@@ -135,7 +139,8 @@ body {
     color: #f8fafc;
     font-size: 16px;
     font-weight: 700;
-    justify-content: center;
+    justify-content: flex-end;
+    padding-right: 15px;
     letter-spacing: 0.5px;
 }
 
@@ -236,6 +241,8 @@ body {
     color: #ec4899;
     background-color: var(--row-header-bg);
     font-weight: 700;
+    justify-content: flex-end;
+    padding-right: 15px;
 }
 
 /* Toolbar & Buttons */
@@ -294,12 +301,13 @@ body {
     border-radius: 20px;
     padding: 25px 20px;
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    transform-style: preserve-3d;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform: translateY(-8px) scale(1.02) perspective(1000px) rotateX(4deg) rotateY(-2deg);
+    box-shadow: 15px 25px 40px rgba(0,0,0,0.4);
 }
 
 .card-title { font-size: 13px; color: #94a3b8; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
@@ -325,6 +333,13 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     padding: 25px;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    transform-style: preserve-3d;
+}
+
+.chart-box:hover {
+    transform: translateY(-8px) scale(1.02) perspective(1000px) rotateX(4deg) rotateY(-2deg);
+    box-shadow: 15px 25px 40px rgba(0,0,0,0.4);
 }
 .chart-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 15px; color: #cbd5e1; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
 
@@ -400,17 +415,31 @@ body {
 }
 
 /* --- LIGHT MODE SPECIFICS --- */
+[data-theme="light"] {
+    --bg-color: #f8fafc;
+    --sheet-border: rgba(0,0,0,0.06);
+    --row-header-bg: #e2e8f0;
+    --habit-col-bg: #f1f5f9;
+    --cell-bg: #ffffff;
+    --text-color: #0f172a;
+}
+
 [data-theme="light"] body {
-    background-image: radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.05), transparent 25%),
-                      radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.05), transparent 25%);
+    background-image: radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.04), transparent 25%),
+                      radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.04), transparent 25%);
 }
 
 [data-theme="light"] .spreadsheet-container,
 [data-theme="light"] .card,
 [data-theme="light"] .chart-box {
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
+}
+
+[data-theme="light"] .card:hover, 
+[data-theme="light"] .chart-box:hover {
+    box-shadow: 15px 25px 40px rgba(0,0,0,0.08);
 }
 
 [data-theme="light"] .cell.habit-name,
@@ -425,12 +454,18 @@ body {
 }
 
 [data-theme="light"] .cell:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 [data-theme="light"] .square-box {
-    background-color: rgba(255,255,255,1);
+    background-color: #ffffff;
     border-color: #94a3b8;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+}
+
+[data-theme="light"] .square-box:hover {
+    border-color: #64748b;
+    transform: scale(1.1);
 }
 
 [data-theme="light"] .square-box.checked {
@@ -443,21 +478,21 @@ body {
 
 [data-theme="light"] .btn-outline {
     color: #0f172a;
-    border-color: rgba(0,0,0,0.2);
+    border-color: rgba(0,0,0,0.15);
 }
 
 [data-theme="light"] .btn-outline:hover {
-    background: rgba(0,0,0,0.05);
+    background: rgba(0,0,0,0.04);
 }
 
 [data-theme="light"] .login-screen {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="light"] .login-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
 }
 
 [data-theme="light"] .login-card h2 {

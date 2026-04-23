@@ -215,7 +215,7 @@ function renderSpreadsheet() {
     // --- PROGRESS ROW (Bottom) ---
     const progressRow = state.habits.length + 1;
     createCell(container, progressRow, 'cell row-header');
-    createCell(container, 'Daily Progress', 'cell progress-cell', 'text-align: right; justify-content: flex-end; padding-right: 12px;');
+    createCell(container, 'Daily Progress', 'cell progress-cell');
     
     dates.forEach(d => {
         const k = dateToKey(d);
