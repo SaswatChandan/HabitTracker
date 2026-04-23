@@ -94,11 +94,12 @@ body {
     gap: 1px;
     border: 1px solid var(--sheet-border);
     border-radius: 8px;
-    overflow: hidden;
     color: var(--text-color);
     font-size: 14px;
     user-select: none;
     margin: 0 auto;
+    width: max-content;
+    min-width: 100%;
 }
 
 .cell {
@@ -122,6 +123,17 @@ body {
     color: #94a3b8;
     font-weight: 500;
     min-width: 35px;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+.cell.sticky-col {
+    position: sticky;
+    left: 41px;
+    z-index: 10;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
 }
 
 .cell.habit-name {
@@ -455,6 +467,11 @@ body {
 
 [data-theme="light"] .cell:hover {
     background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .cell.row-header,
+[data-theme="light"] .cell.sticky-col {
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
 }
 
 [data-theme="light"] .square-box {

@@ -168,14 +168,14 @@ function renderSpreadsheet() {
         
         // --- ROW 1: Days Header ---
         createCell(container, '', 'cell row-header');
-        createCell(container, 'My Habits', 'cell header-title', 'color: #111;'); 
+        createCell(container, 'My Habits', 'cell header-title sticky-col', 'color: #111;'); 
         dates.forEach(d => {
             createCell(container, daysOfWeek[d.getDay()], 'cell col-header-day');
         });
 
         // --- ROW 2: Dates Header ---
         createCell(container, '', 'cell row-header'); 
-        createCell(container, '', 'cell habit-name', 'background-color: var(--habit-col-bg);'); 
+        createCell(container, '', 'cell habit-name sticky-col', 'background-color: var(--habit-col-bg);'); 
         dates.forEach(d => {
             createCell(container, d.getDate(), 'cell col-header-date');
         });
@@ -185,7 +185,7 @@ function renderSpreadsheet() {
         createCell(container, hIdx + 1, 'cell row-header'); // proper 1-based numbering
         
         const nameCell = document.createElement('div');
-        nameCell.className = 'cell habit-name';
+        nameCell.className = 'cell habit-name sticky-col';
         nameCell.dataset.habitId = habit.id;
         
         const textSpan = document.createElement('span');
@@ -237,7 +237,7 @@ function renderSpreadsheet() {
     // --- PROGRESS ROW (Bottom) ---
     const progressRow = state.habits.length + 1;
     createCell(container, progressRow, 'cell row-header');
-    createCell(container, 'Daily Progress', 'cell progress-cell');
+    createCell(container, 'Daily Progress', 'cell progress-cell sticky-col');
     
     dates.forEach(d => {
         const k = dateToKey(d);
