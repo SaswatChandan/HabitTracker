@@ -53,7 +53,12 @@ onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         loginScreen.style.display = 'none';
         appContainer.style.display = 'block';
-        await loadState();
+        
+        // Optimistic fast-render so you don't stare at a blank screen
+        state = getDefaultState();
+        renderSpreadsheet(); 
+        
+        await loadState(); // Takes time to fetch from cloud
         updateStats();
         updateCharts();
         renderSpreadsheet();
@@ -125,25 +130,33 @@ async function saveState() {
 }
 
 function renderSpreadsheet() {
-    const container = document.getElementById('spreadsheet');
-    container.style.gridTemplateColumns = `40px 220px repeat(${dates.length}, 45px)`;
-    container.innerHTML = '';
+    try {
+        const container = document.getElementById('spreadsheet');
+        if (!container) return;
+        
+        // Safety net to guarantee habits never crash the loop
+        if (!state || !state.habits || !Array.isArray(state.habits)) {
+            state = getDefaultState();
+        }
 
-    let rowNumOffst = 4;
-    
-    // --- ROW 1: Days Header ---
-    createCell(container, '', 'cell row-header');
-    createCell(container, 'My Habits', 'cell header-title', 'color: #111;'); 
-    dates.forEach(d => {
-        createCell(container, daysOfWeek[d.getDay()], 'cell col-header-day');
-    });
+        container.style.gridTemplateColumns = `40px 220px repeat(${dates.length}, 45px)`;
+        container.innerHTML = '';
 
-    // --- ROW 2: Dates Header ---
-    createCell(container, '', 'cell row-header'); 
-    createCell(container, '', 'cell habit-name', 'background-color: var(--habit-col-bg);'); 
-    dates.forEach(d => {
-        createCell(container, d.getDate(), 'cell col-header-date');
-    });
+        let rowNumOffst = 4;
+        
+        // --- ROW 1: Days Header ---
+        createCell(container, '', 'cell row-header');
+        createCell(container, 'My Habits', 'cell header-title', 'color: #111;'); 
+        dates.forEach(d => {
+            createCell(container, daysOfWeek[d.getDay()], 'cell col-header-day');
+        });
+
+        // --- ROW 2: Dates Header ---
+        createCell(container, '', 'cell row-header'); 
+        createCell(container, '', 'cell habit-name', 'background-color: var(--habit-col-bg);'); 
+        dates.forEach(d => {
+            createCell(container, d.getDate(), 'cell col-header-date');
+        });
 
     // --- HABIT ROWS ---
     state.habits.forEach((habit, hIdx) => {
@@ -212,11 +225,14 @@ function renderSpreadsheet() {
         createCell(container, `${pct}%`, 'cell progress-cell');
     });
 
-    if(selectedCell && selectedCell.dataset.habitId) {
-            const nodes = container.querySelectorAll('.habit-name');
-            nodes.forEach(n => {
-                if(n.dataset.habitId === selectedCell.dataset.habitId) n.classList.add('selected');
-            });
+        if(selectedCell && selectedCell.dataset.habitId) {
+                const nodes = container.querySelectorAll('.habit-name');
+                nodes.forEach(n => {
+                    if(n.dataset.habitId === selectedCell.dataset.habitId) n.classList.add('selected');
+                });
+        }
+    } catch(err) {
+        console.error("Rendering Spreadsheet Error:", err);
     }
 }
 
@@ -368,19 +384,20 @@ function updateCharts() {
 }
 
 if(addHabitBtn) {
-    addHabitBtn.onclick = () => {
+    addHabitBtn.addEventListener('click', () => {
+        if (!state.habits) state.habits = [];
         state.habits.push({ id: Date.now().toString(), name: 'New Habit ✏️', completed: {} });
         saveState();
-    };
+    });
 }
 
 if(resetBtn) {
-    resetBtn.onclick = () => {
+    resetBtn.addEventListener('click', () => {
         if(confirm('Reset all progress?')) {
             state.habits.forEach(h => h.completed = {});
             state.xp = 0;
             state.level = 1;
             saveState();
         }
-    };
+    });
 }
