@@ -1,51 +1,86 @@
 :root {
-    --bg-color: #000;
-    --sheet-border: #a0a0a0;
-    --row-header-bg: #f4f5f8;
-    --habit-col-bg: #cccccc;
-    --cell-bg: #ffffff;
-    --text-color: #222222;
-    --selection-color: #1a5cff;
+    --bg-color: #0b0c10;
+    --sheet-border: rgba(255,255,255,0.04);
+    --row-header-bg: rgba(255,255,255,0.04);
+    --habit-col-bg: rgba(255,255,255,0.02);
+    --cell-bg: rgba(255,255,255,0.01);
+    --text-color: #e2e8f0;
+    --selection-color: #ec4899;
     --font-family: 'Inter', sans-serif;
 }
 
 body {
     background-color: var(--bg-color);
-    color: #fff;
+    background-image: radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15), transparent 25%),
+                      radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15), transparent 25%);
+    background-attachment: fixed;
+    color: var(--text-color);
     font-family: var(--font-family);
     margin: 0;
     padding: 20px 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100vh;
 }
 
-.header-banner h1 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 25px;
-    text-align: center;
-    letter-spacing: 0.5px;
-}
-
-/* Rounded white container from the video POV */
-.spreadsheet-container {
-    background: #fff;
-    border-radius: 40px;
-    padding: 40px 15px;
+/* Header & Logo */
+.header-banner {
     width: 100%;
-    max-width: 900px;
-    overflow-x: auto;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
-/* The actual grid simulating a spreadsheet */
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.app-logo {
+    width: 40px;
+    height: 40px;
+    animation: floatLogo 4s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.glow-text {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #4f46e5, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+/* Glass Container */
+.spreadsheet-container {
+    background: rgba(25, 25, 35, 0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 30px 15px;
+    width: 100%;
+    max-width: 950px;
+    overflow-x: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    margin-bottom: 30px;
+}
+
+/* Grid */
 .spreadsheet {
     display: grid;
     background-color: var(--sheet-border);
     gap: 1px;
     border: 1px solid var(--sheet-border);
+    border-radius: 8px;
+    overflow: hidden;
     color: var(--text-color);
     font-size: 14px;
     user-select: none;
@@ -57,15 +92,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
+    padding: 8px;
     position: relative;
     white-space: nowrap;
-    min-height: 24px;
+    min-height: 28px;
+    transition: background-color 0.2s;
+}
+
+.cell:hover {
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 .cell.row-header {
     background-color: var(--row-header-bg);
-    color: #555;
+    color: #94a3b8;
     font-weight: 500;
     min-width: 35px;
 }
@@ -73,61 +113,78 @@ body {
 .cell.habit-name {
     background-color: var(--habit-col-bg);
     justify-content: flex-end;
-    padding-right: 12px;
-    min-width: 200px;
+    padding-right: 15px;
+    min-width: 220px;
     font-weight: 600;
     cursor: pointer;
+    color: #f8fafc;
 }
 
 .cell.header-title {
     background-color: var(--habit-col-bg);
-    font-size: 18px;
+    color: #f8fafc;
+    font-size: 16px;
     font-weight: 700;
     justify-content: center;
+    letter-spacing: 0.5px;
 }
 
 .cell.col-header-day {
     background-color: var(--row-header-bg);
+    color: #94a3b8;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
+    text-transform: uppercase;
     border-bottom: 0;
 }
 
 .cell.col-header-date {
     background-color: var(--row-header-bg);
-    font-weight: 600;
+    color: #cbd5e1;
+    font-weight: 700;
     border-top: 0;
 }
 
 .cell.checkbox-cell {
     cursor: pointer;
-    min-width: 35px;
+    min-width: 40px;
 }
 
-/* Square checkboxes like the spreadsheet */
+/* Glassmorphic Checkboxes */
 .square-box {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #555;
-    background-color: #fff;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #334155;
+    background-color: rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 2px;
-    transition: all 0.1s;
+    border-radius: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.square-box:hover {
+    border-color: #64748b;
+    transform: scale(1.1);
 }
 
 .square-box.checked {
-    border-color: #333;
-}
-.square-box.checked::after {
-    content: '✓';
-    color: #000;
-    font-weight: bold;
-    font-size: 14px;
+    border-color: #ec4899;
+    background: linear-gradient(135deg, #4f46e5, #ec4899);
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+    transform: scale(1.05);
 }
 
-/* Excel Style Selection - right on the borders */
+.square-box.checked::after {
+    content: '✓';
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Excel Style Selection */
 .cell.selected::before {
     content: '';
     position: absolute;
@@ -135,21 +192,22 @@ body {
     border: 2px solid var(--selection-color);
     z-index: 5;
     pointer-events: none;
+    box-shadow: 0 0 8px rgba(236, 72, 153, 0.4) inset;
 }
 .cell.selected::after {
     content: '';
     position: absolute;
     bottom: -4px;
     right: -4px;
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     background-color: var(--selection-color);
-    border: 1px solid #fff;
+    border: 1px solid #000;
     border-radius: 50%;
     z-index: 6;
+    box-shadow: 0 0 5px rgba(236, 72, 153, 0.8);
 }
 
-/* Editable text box inside cell */
 .habit-input {
     width: 100%;
     border: none;
@@ -160,97 +218,129 @@ body {
     font-weight: inherit;
     outline: none;
     padding: 0;
-    color: inherit;
+    color: #fff;
 }
 
 .cell.progress-cell {
     font-size: 12px;
-    color: #666;
-    background-color: var(--habit-col-bg);
-    font-weight: 600;
+    color: #ec4899;
+    background-color: var(--row-header-bg);
+    font-weight: 700;
 }
 
-/* --- ADDITIONS BELOW SPREADSHEET --- */
+/* Toolbar & Buttons */
 .toolbar {
     display: flex;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    width: 100%;
+    max-width: 950px;
 }
 
 .btn {
-    background: #fff;
-    color: #000;
+    background: linear-gradient(135deg, #4f46e5, #ec4899);
+    color: #fff;
     border: none;
-    padding: 10px 24px;
+    padding: 12px 28px;
     border-radius: 100px;
     font-weight: 700;
     font-family: 'Inter', sans-serif;
+    font-size: 14px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.2);
 }
 
-.btn:hover { background: #e0e0e0; transform: scale(1.02); }
-.btn-outline { background: transparent; color: #fff; border: 2px solid #fff; }
-.btn-outline:hover { background: rgba(255,255,255,0.1); }
+.btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+}
 
+.btn-outline { 
+    background: rgba(255,255,255,0.05); 
+    color: #fff; 
+    border: 1px solid rgba(255,255,255,0.2); 
+    box-shadow: none;
+}
+.btn-outline:hover { 
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+}
+
+/* Cards & Charts */
 .stats-cards {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     width: 100%;
-    max-width: 900px;
-    margin-bottom: 20px;
+    max-width: 950px;
+    margin-bottom: 25px;
 }
 
 .card {
     flex: 1;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 16px;
-    padding: 20px;
+    background: rgba(25, 25, 35, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 25px 20px;
     text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.card-title { font-size: 14px; color: #aaa; margin-bottom: 8px; font-weight: 600; }
-.card-value { font-size: 28px; font-weight: 800; color: #fff; }
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.card-title { font-size: 13px; color: #94a3b8; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+.card-value { font-size: 32px; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+
+/* Number Colors */
+#streakCount { color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+#levelDisplay { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+#xpScore { color: #8b5cf6; text-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
 
 .charts-container {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     width: 100%;
-    max-width: 900px;
-    margin-bottom: 40px;
+    max-width: 950px;
+    margin-bottom: 50px;
 }
 
 .chart-box {
     flex: 1;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 16px;
-    padding: 20px;
+    background: rgba(25, 25, 35, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 25px;
 }
-.chart-box h3 { margin-top: 0; margin-bottom: 15px; font-size: 16px; color: #aaa; text-align: center;}
+.chart-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 15px; color: #cbd5e1; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
 
 /* --- LOGIN SCREEN --- */
 .login-screen {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.90);
+    background: rgba(5, 5, 10, 0.85);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
 }
 .login-card {
-    background: #111;
-    padding: 40px;
-    border-radius: 20px;
-    border: 1px solid #333;
+    background: rgba(20, 20, 30, 0.8);
+    padding: 50px 40px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
     text-align: center;
     max-width: 400px;
     width: 90%;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
 }
-.login-card h2 { margin-top: 0; }
-.login-card p { color: #aaa; margin-bottom: 30px; }
+.login-card h2 { margin-top: 0; font-size: 24px; font-weight: 700; color: #fff;}
+.login-card p { color: #94a3b8; margin-bottom: 35px; line-height: 1.5; }
 .google-btn {
     display: flex;
     align-items: center;
@@ -259,50 +349,41 @@ body {
     width: 100%;
     font-size: 16px;
     background: #fff;
-    color: #000;
+    color: #0f172a;
+    box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.google-btn:hover {
+    background: #f8fafc;
+    box-shadow: 0 8px 25px rgba(255,255,255,0.2);
+    transform: translateY(-2px);
 }
 
 /* --- DISABLED PAST CELLS --- */
 .cell.checkbox-cell.disabled-cell {
-    opacity: 0.3;
+    opacity: 0.2;
     cursor: not-allowed !important;
     pointer-events: none;
+    background-color: rgba(0,0,0,0.2) !important;
 }
 
-/* Responsive Design for Mobile/Phone Screens */
+/* Scrollbar tuning */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Responsive */
 @media screen and (max-width: 768px) {
-    .stats-cards {
-        flex-direction: column;
-    }
-    
-    .charts-container {
-        flex-direction: column;
-    }
-
-    .spreadsheet-container {
-        padding: 20px 10px;
-        border-radius: 20px;
-    }
-    
-    .header-banner h1 {
-        font-size: 18px;
-        margin-bottom: 15px;
-    }
-
-    .toolbar {
-        flex-direction: column;
-        width: 100%;
-        max-width: 400px;
-        gap: 10px;
-    }
-    
-    .btn {
-        width: 100%;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    body {
-        padding: 15px 5px;
-    }
+    .stats-cards, .charts-container { flex-direction: column; }
+    .spreadsheet-container { padding: 20px 10px; border-radius: 20px; }
+    .glow-text { font-size: 20px; }
+    .app-logo { width: 30px; height: 30px; }
+    .toolbar { flex-direction: column; width: 100%; max-width: 400px; gap: 10px; margin: 0 auto 25px; }
+    .btn { width: 100%; }
 }
