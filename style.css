@@ -1,9 +1,9 @@
 :root {
     --bg-color: #0b0c10;
-    --sheet-border: rgba(255,255,255,0.04);
-    --row-header-bg: rgba(255,255,255,0.04);
-    --habit-col-bg: rgba(255,255,255,0.02);
-    --cell-bg: rgba(255,255,255,0.01);
+    --sheet-border: rgba(255,255,255,0.08); /* Dark base container lines */
+    --row-header-bg: #1e1f29; /* Solid color critical for sticky overlap */
+    --habit-col-bg: #222430; /* Solid color critical for sticky overlap */
+    --cell-bg: rgba(255,255,255,0.015);
     --text-color: #e2e8f0;
     --selection-color: #ec4899;
     --font-family: 'Inter', sans-serif;

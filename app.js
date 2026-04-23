@@ -2,6 +2,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
+// Show Cloud Auth Error
+window.showCloudError = function() {
+    if(document.getElementById('cloudErrorBanner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'cloudErrorBanner';
+    banner.innerHTML = `<b>☁️ CLOUD DATABASE ERR ☁️</b><br>Your Firebase Firestore database is missing or locked. Data is saving ONLY to this local device. Fix your Firebase Rules to sync across devices!`;
+    banner.style.cssText = 'background: #ef4444; color: white; padding: 12px; text-align: center; font-size: 14px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.5);';
+    document.body.prepend(banner);
+};
+
 const firebaseConfig = {
   apiKey: "AIzaSyBvc1bpouW3NCAp2wdMQbdSCmBiOH1SsYk",
   authDomain: "habit-tracker-3e772.firebaseapp.com",
@@ -125,6 +135,8 @@ async function loadState() {
         }
     } catch (err) {
         console.error("Firestore Loading Error:", err);
+        showCloudError();
+        showCloudError();
         // Fallback gracefully to local storage if cloud is blocked
         let backup = localStorage.getItem(`habitBackup_${currentUser.uid}`);
         state = backup ? JSON.parse(backup) : getDefaultState();
@@ -148,6 +160,8 @@ async function saveState() {
         await setDoc(docRef, state);
     } catch (err) {
         console.error("Firestore Save Error. Saved locally instead.", err);
+        showCloudError();
+        showCloudError();
     }
 }
 
@@ -161,7 +175,8 @@ function renderSpreadsheet() {
             state = getDefaultState();
         }
 
-        container.style.gridTemplateColumns = `40px 220px repeat(${dates.length}, 45px)`;
+        const nameWidth = window.innerWidth <= 768 ? '135px' : '220px';
+        container.style.gridTemplateColumns = `40px ${nameWidth} repeat(${dates.length}, 45px)`;
         container.innerHTML = '';
 
         let rowNumOffst = 4;
