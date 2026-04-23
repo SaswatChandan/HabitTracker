@@ -42,7 +42,8 @@ let barChartInstance = null;
 let selectedCell = null;
 
 const dates = [];
-for(let i=13; i>=0; i--) {
+const historyDays = window.innerWidth <= 768 ? 3 : 13;
+for(let i=historyDays; i>=0; i--) {
     let d = new Date(currentDate);
     d.setDate(d.getDate() - i);
     dates.push(d);
