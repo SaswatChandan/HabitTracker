@@ -54,20 +54,27 @@ onAuthStateChanged(auth, async (user) => {
         loginScreen.style.display = 'none';
         appContainer.style.display = 'block';
         
+        let isCloudLoading = true;
         // OFFLINE FIRST: Load from local backup instantly while cloud syncs in background
         const backup = localStorage.getItem(`habitBackup_${currentUser.uid}`);
         if (backup) {
             try { state = JSON.parse(backup); } catch(e) { state = { habits: [], xp: 0, level: 1 }; }
+            isCloudLoading = false;
+            updateStats();
+            updateCharts();
+            renderSpreadsheet(); 
         } else {
+            // First time loading on this device, no local backup exists yet
             state = { habits: [], xp: 0, level: 1 };
+            const container = document.getElementById('spreadsheet');
+            if (container) {
+                container.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#94a3b8;"><p style="font-size: 16px; font-weight: 600;">☁️ Synchronizing with Cloud...</p><p style="font-size: 13px; margin-top: 10px;">This may take a few seconds on your first load.</p></div>';
+            }
         }
-        
-        updateStats();
-        updateCharts();
-        renderSpreadsheet(); 
         
         // Let the cloud sync happen in the background without freezing the UI
         loadState().then(() => {
+            isCloudLoading = false;
             updateStats();
             updateCharts();
             renderSpreadsheet();
