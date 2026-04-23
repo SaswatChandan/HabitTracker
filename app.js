@@ -54,8 +54,8 @@ onAuthStateChanged(auth, async (user) => {
         loginScreen.style.display = 'none';
         appContainer.style.display = 'block';
         
-        // Optimistic fast-render so you don't stare at a blank screen
-        state = getDefaultState();
+        // Render empty skeleton so we don't accidentally let them edit default habits and overwrite cloud
+        state = { habits: [], xp: 0, level: 1 };
         renderSpreadsheet(); 
         
         await loadState(); // Takes time to fetch from cloud
@@ -106,6 +106,7 @@ async function loadState() {
         }
     } catch (err) {
         console.error("Error loading state", err);
+        alert("Firestore Error: Could not connect to the cloud database. Your database might be in locked mode, or you may need to enable Firestore in your Firebase Console.");
     }
 }
 
