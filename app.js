@@ -106,14 +106,21 @@ async function loadState() {
 
 async function saveState() {
     if (!currentUser) return;
+    
     try {
-        const docRef = doc(db, "users", currentUser.uid);
-        await setDoc(docRef, state);
         updateStats();
         updateCharts();
         renderSpreadsheet();
+    } catch(e) {
+        console.error("UI Render error", e);
+    }
+    
+    try {
+        const docRef = doc(db, "users", currentUser.uid);
+        await setDoc(docRef, state);
     } catch (err) {
-        console.error("Error saving state", err);
+        console.error("Error saving state to database", err);
+        alert("Failed to save to cloud. Ensure your Firestore Database is created and in Test Mode.");
     }
 }
 
@@ -140,13 +147,30 @@ function renderSpreadsheet() {
 
     // --- HABIT ROWS ---
     state.habits.forEach((habit, hIdx) => {
-        const currentSpreadsheetRow = rowNumOffst + hIdx + 2; 
-
-        createCell(container, currentSpreadsheetRow, 'cell row-header');
+        createCell(container, hIdx + 1, 'cell row-header'); // proper 1-based numbering
         
-        const nameCell = createCell(container, habit.name, 'cell habit-name');
+        const nameCell = document.createElement('div');
+        nameCell.className = 'cell habit-name';
         nameCell.dataset.habitId = habit.id;
-        nameCell.onclick = (e) => selectCell(nameCell);
+        
+        const textSpan = document.createElement('span');
+        textSpan.textContent = habit.name;
+        
+        const delBtn = document.createElement('span');
+        delBtn.innerHTML = '&#10060;'; // cross icon
+        delBtn.style.cursor = 'pointer';
+        delBtn.style.marginLeft = '12px';
+        delBtn.style.opacity = '0.6';
+        delBtn.style.fontSize = '10px';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteHabit(habit.id);
+        };
+        
+        nameCell.appendChild(textSpan);
+        nameCell.appendChild(delBtn);
+        nameCell.onclick = () => selectCell(nameCell);
+        container.appendChild(nameCell);
         
         dates.forEach((d) => {
             const k = dateToKey(d);
@@ -200,7 +224,7 @@ function createCell(parent, text, className, inlineStyle='') {
     const div = document.createElement('div');
     div.className = className;
     div.textContent = text;
-    if(inlineStyle) div.style = inlineStyle;
+    if(inlineStyle) div.setAttribute('style', inlineStyle);
     parent.appendChild(div);
     return div;
 }
@@ -225,7 +249,7 @@ function selectCell(cellDiv) {
         input.onblur = () => {
             const newVal = input.value.trim();
             if(newVal === '') {
-                deleteHabit(habit.id);
+                renderSpreadsheet(); // restore old name cleanly
             } else {
                 habit.name = newVal;
                 saveState();
@@ -256,85 +280,91 @@ function toggleHabit(habit, dateKey) {
 }
 
 function deleteHabit(id) {
-    if(confirm('Habit name is empty. Delete habit?')) {
+    if(confirm('Are you sure you want to delete this habit?')) {
         state.habits = state.habits.filter(h => h.id !== id);
         selectedCell = null;
-        saveState();
-    } else {
         saveState();
     }
 }
 
 function updateStats() {
-    let streak = 0;
-    let tempDate = new Date(currentDate);
-    while(true) {
-            let k = dateToKey(tempDate);
-            const todayComps = state.habits.filter(h => h.completed[k]).length;
-            if(todayComps > 0) {
-                streak++;
-                tempDate.setDate(tempDate.getDate() - 1);
-            } else {
-                break;
-            }
-    }
+    try {
+        let streak = 0;
+        let tempDate = new Date(currentDate);
+        while(true) {
+                let k = dateToKey(tempDate);
+                const todayComps = state.habits.filter(h => h.completed[k]).length;
+                if(todayComps > 0) {
+                    streak++;
+                    tempDate.setDate(tempDate.getDate() - 1);
+                } else {
+                    break;
+                }
+        }
 
-    const streakEl = document.getElementById('streakCount');
-    const levelEl = document.getElementById('levelDisplay');
-    const xpEl = document.getElementById('xpScore');
-    
-    if(streakEl) streakEl.textContent = streak;
-    if(levelEl) levelEl.textContent = `Lv. ${state.level}`;
-    if(xpEl) xpEl.textContent = state.xp;
+        const streakEl = document.getElementById('streakCount');
+        const levelEl = document.getElementById('levelDisplay');
+        const xpEl = document.getElementById('xpScore');
+        
+        if(streakEl) streakEl.textContent = streak;
+        if(levelEl) levelEl.textContent = `Lv. ${state.level}`;
+        if(xpEl) xpEl.textContent = state.xp;
+    } catch(e) {
+        console.error("Stats Error:", e);
+    }
 }
 
 function updateCharts() {
-    if(!document.getElementById('pieChart') || typeof Chart === 'undefined') return;
-    Chart.defaults.color = '#fff';
-    Chart.defaults.font.family = "'Inter', sans-serif";
+    try {
+        if(!document.getElementById('pieChart') || typeof Chart === 'undefined') return;
+        Chart.defaults.color = '#fff';
+        Chart.defaults.font.family = "'Inter', sans-serif";
 
-    let totalTasks = state.habits.length * dates.length;
-    let completedTasks = 0;
-    
-    const habitData = state.habits.map(h => {
-            let comps = 0;
-            dates.forEach(d => {
-                if(h.completed[dateToKey(d)]) comps++;
-            });
-            completedTasks += comps;
-            return { name: h.name.split(' ')[0], comps };
-    });
+        let totalTasks = state.habits.length * dates.length;
+        let completedTasks = 0;
+        
+        const habitData = state.habits.map(h => {
+                let comps = 0;
+                dates.forEach(d => {
+                    if(h.completed[dateToKey(d)]) comps++;
+                });
+                completedTasks += comps;
+                return { name: h.name.split(' ')[0], comps };
+        });
 
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    if(pieChartInstance) pieChartInstance.destroy();
-    pieChartInstance = new Chart(ctxPie, {
-        type: 'doughnut',
-        data: {
-            labels: ['Done', 'Missed'],
-            datasets: [{
-                data: [completedTasks, Math.max(0, totalTasks - completedTasks)],
-                backgroundColor: ['#1a73e8', '#333'],
-                borderWidth: 0
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        if(pieChartInstance) pieChartInstance.destroy();
+        pieChartInstance = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Done', 'Missed'],
+                datasets: [{
+                    data: [completedTasks, Math.max(0, totalTasks - completedTasks)],
+                    backgroundColor: ['#1a73e8', '#333'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
 
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    if(barChartInstance) barChartInstance.destroy();
-    barChartInstance = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: habitData.map(h => h.name),
-            datasets: [{
-                label: 'Completions',
-                data: habitData.map(h => h.comps),
-                backgroundColor: '#1a73e8',
-                borderRadius: 4
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        if(barChartInstance) barChartInstance.destroy();
+        barChartInstance = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: habitData.map(h => h.name),
+                datasets: [{
+                    label: 'Completions',
+                    data: habitData.map(h => h.comps),
+                    backgroundColor: '#1a73e8',
+                    borderRadius: 4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    } catch(e) {
+        console.error("Chart Error:", e);
+    }
 }
 
 if(addHabitBtn) {
