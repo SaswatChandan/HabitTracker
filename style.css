@@ -229,6 +229,46 @@ body {
 }
 .chart-box h3 { margin-top: 0; margin-bottom: 15px; font-size: 16px; color: #aaa; text-align: center;}
 
+/* --- LOGIN SCREEN --- */
+.login-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.90);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.login-card {
+    background: #111;
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid #333;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+.login-card h2 { margin-top: 0; }
+.login-card p { color: #aaa; margin-bottom: 30px; }
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    font-size: 16px;
+    background: #fff;
+    color: #000;
+}
+
+/* --- DISABLED PAST CELLS --- */
+.cell.checkbox-cell.disabled-cell {
+    opacity: 0.3;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
 /* Responsive Design for Mobile/Phone Screens */
 @media screen and (max-width: 768px) {
     .stats-cards {
