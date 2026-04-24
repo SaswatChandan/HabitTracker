@@ -261,15 +261,17 @@ function renderSpreadsheet() {
         dates.forEach((d) => {
             const k = dateToKey(d);
             const isChecked = habit.completed[k] === true;
+            const isPast = k < todayKey;
             
             const checkCell = document.createElement('div');
-            checkCell.className = `cell checkbox-cell`;
+            checkCell.className = `cell checkbox-cell ${isPast ? 'disabled-cell' : ''}`;
             
             const box = document.createElement('div');
             box.className = `square-box ${isChecked ? 'checked' : ''}`;
             checkCell.appendChild(box);
             
             checkCell.onclick = () => {
+                if (isPast) return; // Prevent action on past dates
                 toggleHabit(habit, k);
             };
             container.appendChild(checkCell);
@@ -342,6 +344,8 @@ function selectCell(cellDiv) {
 }
 
 function toggleHabit(habit, dateKey) {
+    if (dateKey < todayKey) return; // Hard guard for past dates
+    
     if(habit.completed[dateKey]) {
         delete habit.completed[dateKey];
         state.xp = Math.max(0, state.xp - 10);
