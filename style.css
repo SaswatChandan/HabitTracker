@@ -144,6 +144,26 @@ body {
     font-weight: 600;
     cursor: pointer;
     color: #f8fafc;
+    justify-content: flex-start;
+    padding-left: 15px;
+    background-color: var(--habit-col-bg);
+}
+
+.cell.draggable {
+    cursor: grab;
+}
+
+.cell.draggable:active {
+    cursor: grabbing;
+}
+
+.cell.dragging {
+    opacity: 0.4;
+    background-color: var(--selection-color) !important;
+}
+
+.cell.drag-over {
+    border-top: 2px solid var(--selection-color);
 }
 
 .cell.header-title {
