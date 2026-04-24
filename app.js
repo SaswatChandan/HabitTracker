@@ -28,6 +28,7 @@ const db = getFirestore(app);
 
 let state = { habits: [], xp: 0, level: 1 };
 let currentUser = null;
+let lastSaveTime = 0;
 
 let currentDate = new Date();
 currentDate.setHours(0,0,0,0);
@@ -122,9 +123,17 @@ function getDefaultState() {
 
 async function loadState() {
     if (!currentUser) return;
+    const fetchStartTime = Date.now();
     try {
         const docRef = doc(db, "users", currentUser.uid);
         const docSnap = await getDoc(docRef);
+        
+        // Prevent stale cloud data from overwriting optimistic local user edits made during the loading period
+        if (lastSaveTime > fetchStartTime) {
+            console.log("Skipping stale cloud payload due to optimistic local updates.");
+            return;
+        }
+
         if (docSnap.exists()) {
             state = docSnap.data();
             if (!state.habits) state.habits = [];
@@ -146,6 +155,7 @@ async function loadState() {
 
 async function saveState() {
     if (!currentUser) return;
+    lastSaveTime = Date.now();
     
     try {
         updateStats();
@@ -227,23 +237,14 @@ function renderSpreadsheet() {
             const k = dateToKey(d);
             const isChecked = habit.completed[k] === true;
             
-            const isPast = k < todayKey;
-            
             const checkCell = document.createElement('div');
             checkCell.className = `cell checkbox-cell`;
-            
-            if(isPast) {
-               checkCell.classList.add('disabled-cell');
-            }
             
             const box = document.createElement('div');
             box.className = `square-box ${isChecked ? 'checked' : ''}`;
             checkCell.appendChild(box);
             
             checkCell.onclick = () => {
-                if (k < todayKey) {
-                    return; // Prevent action on past dates
-                }
                 toggleHabit(habit, k);
             };
             container.appendChild(checkCell);
