@@ -42,14 +42,34 @@ let pieChartInstance = null;
 let barChartInstance = null;
 let selectedCell = null;
 
-const dates = [];
-const historyDays = window.innerWidth <= 768 ? 3 : 13;
-for(let i=historyDays; i>=0; i--) {
-    let d = new Date(currentDate);
-    d.setDate(d.getDate() - i);
-    dates.push(d);
+let dates = [];
+function updateDatesArray() {
+    dates = [];
+    let historyDays;
+    const w = window.innerWidth;
+    if (w <= 480) historyDays = 3;       // 4 days total for small phones
+    else if (w <= 768) historyDays = 6;  // 7 days (1 week) for tablets
+    else if (w <= 1400) historyDays = 13; // 14 days (2 weeks) for standard PC
+    else historyDays = 20;               // 21 days (3 weeks) for wide screens
+    
+    for(let i = historyDays; i >= 0; i--) {
+        let d = new Date(currentDate);
+        d.setDate(d.getDate() - i);
+        dates.push(d);
+    }
 }
+updateDatesArray();
 const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+// Re-calculate dates on window resize to keep it perfectly responsive
+window.addEventListener('resize', () => {
+    const oldLength = dates.length;
+    updateDatesArray();
+    if (dates.length !== oldLength) {
+        renderSpreadsheet();
+        updateCharts();
+    }
+});
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen');
@@ -186,7 +206,12 @@ function renderSpreadsheet() {
             state = getDefaultState();
         }
 
-        const nameWidth = window.innerWidth <= 768 ? '135px' : '220px';
+        let nameWidth;
+        const w = window.innerWidth;
+        if (w <= 480) nameWidth = '120px'; // Slim for phones
+        else if (w <= 800) nameWidth = '170px'; // Medium for tablets
+        else nameWidth = '220px'; // Full for desktop
+        
         container.style.gridTemplateColumns = `40px ${nameWidth} repeat(${dates.length}, 45px)`;
         container.innerHTML = '';
 
