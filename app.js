@@ -219,7 +219,7 @@ function renderSpreadsheet() {
         
         // --- ROW 1: Days Header ---
         createCell(container, '', 'cell row-header');
-        createCell(container, 'My Habits', 'cell header-title sticky-col', 'color: #111;'); 
+        createCell(container, 'My Habits', 'cell header-title sticky-col'); 
         dates.forEach(d => {
             createCell(container, daysOfWeek[d.getDay()], 'cell col-header-day');
         });
