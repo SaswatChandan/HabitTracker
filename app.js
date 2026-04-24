@@ -236,8 +236,41 @@ function renderSpreadsheet() {
         createCell(container, hIdx + 1, 'cell row-header'); // proper 1-based numbering
         
         const nameCell = document.createElement('div');
-        nameCell.className = 'cell habit-name sticky-col';
+        nameCell.className = 'cell habit-name sticky-col draggable';
         nameCell.dataset.habitId = habit.id;
+        nameCell.draggable = true;
+        
+        nameCell.ondragstart = (e) => {
+            e.dataTransfer.setData('text/plain', hIdx);
+            nameCell.classList.add('dragging');
+        };
+        
+        nameCell.ondragover = (e) => {
+            e.preventDefault();
+            nameCell.classList.add('drag-over');
+        };
+        
+        nameCell.ondragleave = () => {
+             nameCell.classList.remove('drag-over');
+        };
+        
+        nameCell.ondrop = (e) => {
+            e.preventDefault();
+            nameCell.classList.remove('drag-over');
+            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIdx = hIdx;
+            
+            if (fromIdx !== toIdx) {
+                const movedHabit = state.habits.splice(fromIdx, 1)[0];
+                state.habits.splice(toIdx, 0, movedHabit);
+                saveState();
+            }
+        };
+        
+        nameCell.ondragend = () => {
+            nameCell.classList.remove('dragging');
+            document.querySelectorAll('.habit-name').forEach(n => n.classList.remove('drag-over'));
+        };
         
         const textSpan = document.createElement('span');
         textSpan.textContent = habit.name;
