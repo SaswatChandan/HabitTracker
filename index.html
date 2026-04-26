@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track It. Stick To It. Become It.</title>
-    <meta name="description" content="A premium gamified habit tracker with streaks, heatmaps, badges, analytics, and cloud sync.">
+    <meta name="description" content="A premium gamified habit tracker with cloud sync, badges, streaks, analytics and 6 beautiful themes.">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%234F46E5'/><stop offset='100%25' stop-color='%23EC4899'/></linearGradient></defs><path d='M50 15 L85 35 L85 70 L50 90 L15 70 L15 35 Z' fill='none' stroke='url(%23g)' stroke-width='6'/><path d='M50 35 L75 50 L50 65 L25 50 Z' fill='url(%23g)' opacity='0.8'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -12,9 +16,9 @@
 </head>
 <body>
 
-<!-- GLOBAL THEME TOGGLE -->
+<!-- GLOBAL HEADER -->
 <header class="global-header">
-    <button id="themeToggleBtn" class="theme-btn">☀️ Light Mode</button>
+    <button id="themeToggleBtn" class="theme-btn">🎨 Themes</button>
 </header>
 
 <!-- LOGIN SCREEN -->
@@ -49,7 +53,7 @@
         <div class="logo-container">
             <svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F46E5"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+                    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--accent1)"/><stop offset="100%" stop-color="var(--accent2)"/></linearGradient>
                     <filter id="neon"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                 </defs>
                 <path d="M50 15 L85 35 L85 70 L50 90 L15 70 L15 35 Z" fill="none" stroke="url(#glow)" stroke-width="6" filter="url(#neon)"/>
@@ -60,7 +64,7 @@
         </div>
     </div>
 
-    <!-- Daily Quote Banner -->
+    <!-- Daily Quote -->
     <div class="motivation-banner" id="motivationBanner">
         <span class="quote-icon">💬</span>
         <span id="quoteText">Loading your daily inspiration...</span>
@@ -74,10 +78,20 @@
                 <span id="avatarTitle">Seedling</span>
                 <span id="avatarLevelBadge" class="level-badge">Lv. 1</span>
             </div>
-            <div class="xp-bar-track">
-                <div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div>
-            </div>
-            <div class="xp-bar-label"><span id="xpBarLabel">0 / 100 XP</span></div>
+            <div class="xp-bar-track"><div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div></div>
+            <div class="xp-bar-label"><span id="xpBarLabel">0 / 100 XP to next level</span></div>
+        </div>
+    </div>
+
+    <!-- Search + Quick Add -->
+    <div class="search-quick-row">
+        <div class="search-wrap">
+            <input type="text" id="habitSearch" class="habit-search" placeholder="🔍 Search habits...">
+            <button id="clearSearchBtn" class="clear-search-btn" title="Clear search">✕</button>
+        </div>
+        <div class="quick-add-wrap">
+            <input type="text" id="quickAddInput" class="quick-add-input" placeholder="✏️ Quick add habit... (Enter)">
+            <button id="quickAddBtn" class="btn quick-add-btn">+</button>
         </div>
     </div>
 
@@ -89,6 +103,8 @@
     <!-- Toolbar -->
     <div class="toolbar">
         <button id="addHabitBtn" class="btn">+ Add Habit</button>
+        <button id="pomodoroBtn" class="btn btn-outline">🍅 Pomodoro</button>
+        <button id="focusBtn" class="btn btn-outline">🎯 Focus</button>
         <button id="templateBtn" class="btn btn-outline">📦 Templates</button>
         <button id="archiveBtn" class="btn btn-outline">📁 Archive</button>
         <button id="freezeBtn" class="btn btn-outline">❄️ Freeze</button>
@@ -97,6 +113,7 @@
         <button id="importCsvBtn" class="btn btn-outline">📂 Import</button>
         <button id="downloadCsvBtn" class="btn btn-outline">📥 CSV</button>
         <button id="printReportBtn" class="btn btn-outline">🖨️ Report</button>
+        <button id="shortcutsBtn" class="btn btn-outline" title="Keyboard Shortcuts (?)">⌨️</button>
         <button id="resetBtn" class="btn btn-outline">↻ Reset</button>
         <button id="logoutBtn" class="btn btn-outline sign-out-btn">Sign Out</button>
     </div>
@@ -104,18 +121,9 @@
 
     <!-- Stats Cards -->
     <div class="stats-cards">
-        <div class="card">
-            <div class="card-title">🔥 Overall Streak</div>
-            <div class="card-value" id="streakCount">0</div>
-        </div>
-        <div class="card">
-            <div class="card-title">🏆 Level</div>
-            <div class="card-value" id="levelDisplay">Lv. 1</div>
-        </div>
-        <div class="card">
-            <div class="card-title">⭐ XP Score</div>
-            <div class="card-value" id="xpScore">0</div>
-        </div>
+        <div class="card"><div class="card-title">🔥 Streak</div><div class="card-value" id="streakCount">0</div></div>
+        <div class="card"><div class="card-title">🏆 Level</div><div class="card-value" id="levelDisplay">Lv. 1</div></div>
+        <div class="card"><div class="card-title">⭐ XP</div><div class="card-value" id="xpScore">0</div></div>
         <div class="card weekly-challenge-card" id="weeklyChallenge">
             <div class="card-title">🎯 Weekly Challenge</div>
             <div id="challengeDesc" class="challenge-desc">Loading...</div>
@@ -130,44 +138,34 @@
     <div class="section-card" id="analyticsSection">
         <h3 class="section-title">📊 Insights</h3>
         <div class="analytics-grid">
-            <div class="analytics-box">
-                <div class="analytics-label">Best Day of Week</div>
-                <div class="analytics-value" id="bestDayValue">—</div>
+            <div class="analytics-box"><div class="analytics-label">Best Day of Week</div><div class="analytics-value" id="bestDayValue">—</div></div>
+            <div class="analytics-box"><div class="analytics-label">7-Day Trend</div><div class="analytics-value" id="trendValue">—</div></div>
+            <div class="analytics-box sparkline-box"><div class="analytics-label">4-Week Completion</div><div id="sparklineContainer"></div></div>
+            <div class="analytics-box monthly-box">
+                <div class="analytics-label">📅 Last Month Recap</div>
+                <div id="monthlyRecapContent" class="monthly-recap-grid"></div>
             </div>
-            <div class="analytics-box">
-                <div class="analytics-label">7-Day Trend vs Prior Week</div>
-                <div class="analytics-value" id="trendValue">—</div>
-            </div>
-            <div class="analytics-box sparkline-box">
-                <div class="analytics-label">4-Week Completion Trend</div>
-                <div id="sparklineContainer"></div>
-            </div>
-            <div class="analytics-box wide-box">
-                <div class="analytics-label">Per-Habit Best Streak 🏅</div>
-                <div id="habitStreakList" class="habit-streak-list"></div>
-            </div>
+            <div class="analytics-box wide-box"><div class="analytics-label">Per-Habit Best Streak 🏅</div><div id="habitStreakList" class="habit-streak-list"></div></div>
         </div>
     </div>
 
-    <!-- Badges Section -->
+    <!-- Badges -->
     <div class="section-card" id="badgesSection">
         <h3 class="section-title">🏅 Achievements</h3>
         <div class="badges-shelf" id="badgesShelf"></div>
     </div>
 
-    <!-- Heatmap Section -->
+    <!-- Heatmap -->
     <div class="section-card" id="heatmapSection">
         <h3 class="section-title">📅 Year in Review</h3>
-        <div class="heatmap-scroll">
-            <div class="heatmap-grid" id="heatmapGrid"></div>
-        </div>
+        <div class="heatmap-scroll"><div class="heatmap-grid" id="heatmapGrid"></div></div>
         <div class="heatmap-legend">
             <span>Less</span>
             <div class="legend-box" style="background:rgba(139,92,246,0.1)"></div>
             <div class="legend-box" style="background:rgba(139,92,246,0.3)"></div>
             <div class="legend-box" style="background:rgba(139,92,246,0.55)"></div>
             <div class="legend-box" style="background:rgba(236,72,153,0.8)"></div>
-            <div class="legend-box" style="background:linear-gradient(135deg,#4f46e5,#ec4899)"></div>
+            <div class="legend-box" style="background:linear-gradient(135deg,var(--accent1),var(--accent2))"></div>
             <span>More</span>
         </div>
     </div>
@@ -179,7 +177,7 @@
     </div>
 </div>
 
-<!-- ═══ MODALS ════════════════════════════════════════════════════════════════ -->
+<!-- ═══ MODALS ══════════════════════════════════════════════════════════════ -->
 
 <!-- Note Modal -->
 <div id="noteModal" class="modal-overlay" style="display:none;">
@@ -191,6 +189,39 @@
             <button id="saveNoteBtn" class="btn">Save Note</button>
             <button id="cancelNoteBtn" class="btn btn-outline">Cancel</button>
         </div>
+    </div>
+</div>
+
+<!-- Pomodoro Modal -->
+<div id="pomodoroModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card pomodoro-card">
+        <h3>🍅 Pomodoro Timer</h3>
+        <select id="pomodoroHabitSelect" class="pomodoro-select">
+            <option value="">— Select a habit to focus on —</option>
+        </select>
+        <div class="pomodoro-ring-wrap">
+            <svg class="pomodoro-svg" viewBox="0 0 110 110">
+                <defs>
+                    <linearGradient id="pomGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="var(--accent1)"/>
+                        <stop offset="100%" stop-color="var(--accent2)"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/>
+                <circle id="pomodoroRing" cx="55" cy="55" r="46" fill="none" stroke="url(#pomGrad)" stroke-width="8"
+                    stroke-dasharray="289" stroke-dashoffset="0" stroke-linecap="round"
+                    transform="rotate(-90 55 55)"/>
+            </svg>
+            <div class="pomodoro-time-overlay">
+                <div id="pomodoroTime" class="pomodoro-time-display">25:00</div>
+                <div id="pomodoroPhaseLabel" class="pomodoro-phase-label">Focus 🍅</div>
+            </div>
+        </div>
+        <div class="pomodoro-controls">
+            <button id="pomStartBtn" class="btn">▶ Start</button>
+            <button id="pomResetBtn" class="btn btn-outline">↺ Reset</button>
+        </div>
+        <div class="modal-actions"><button id="closePomBtn" class="btn btn-outline">Close</button></div>
     </div>
 </div>
 
@@ -227,39 +258,77 @@
     </div>
 </div>
 
-<!-- Onboarding Overlay -->
+<!-- Theme Picker Modal -->
+<div id="themePickerModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <h3>🎨 Choose Theme</h3>
+        <p class="modal-label">Pick a look that matches your vibe</p>
+        <div id="themePickerGrid" class="theme-picker-grid"></div>
+        <div class="modal-actions"><button id="closeThemeBtn" class="btn btn-outline">Done</button></div>
+    </div>
+</div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div id="shortcutsModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <div class="shortcuts-list">
+            <div class="shortcut-row"><kbd>Ctrl+Z</kbd><span>Undo last action</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+N</kbd><span>Add new habit</span></div>
+            <div class="shortcut-row"><kbd>F</kbd><span>Toggle Focus Mode</span></div>
+            <div class="shortcut-row"><kbd>P</kbd><span>Open Pomodoro Timer</span></div>
+            <div class="shortcut-row"><kbd>T</kbd><span>Open Templates</span></div>
+            <div class="shortcut-row"><kbd>?</kbd><span>Show shortcuts</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Close modals / Exit Focus</span></div>
+        </div>
+        <div class="modal-actions"><button id="closeShortcutsBtn" class="btn btn-outline">Got it!</button></div>
+    </div>
+</div>
+
+<!-- Focus Mode Overlay -->
+<div id="focusMode" class="focus-mode-overlay" style="display:none;">
+    <div class="focus-header">
+        <div class="focus-date">Loading...</div>
+        <button id="exitFocusBtn" class="exit-focus-btn">✕ Exit Focus</button>
+    </div>
+    <div id="focusHabitList" class="focus-habit-list"></div>
+    <div class="focus-footer">
+        <div class="focus-footer-text">
+            <span id="focusDoneCount">0</span> / <span id="focusTotalCount">0</span> habits completed today
+        </div>
+        <div class="focus-prog-track"><div id="focusProgFill" class="focus-prog-fill"></div></div>
+    </div>
+</div>
+
+<!-- Onboarding -->
 <div id="onboardingOverlay" class="onboarding-overlay" style="display:none;">
     <div class="onboarding-card">
-        <div class="onboarding-steps">
-            <div class="ob-step active" id="ob-step-1">
-                <div class="ob-emoji">🌱</div>
-                <h2>Welcome, Future Legend!</h2>
-                <p>This is your personal habit tracker. Track daily habits, earn XP, unlock badges, and watch yourself level up from a <strong>Seedling 🌱</strong> all the way to a <strong>Legend 🦁</strong>.</p>
-                <button class="btn" onclick="document.getElementById('ob-step-1').classList.remove('active'); document.getElementById('ob-step-2').classList.add('active');">Next →</button>
-            </div>
-            <div class="ob-step" id="ob-step-2">
-                <div class="ob-emoji">📊</div>
-                <h2>Track & Analyze</h2>
-                <p>See your full <strong>Year in Review heatmap</strong>, analytics on your best day, weekly challenges, and per-habit streaks. Everything you need to stay accountable.</p>
-                <button class="btn" onclick="document.getElementById('ob-step-2').classList.remove('active'); document.getElementById('ob-step-3').classList.add('active');">Next →</button>
-            </div>
-            <div class="ob-step" id="ob-step-3">
-                <div class="ob-emoji">🚀</div>
-                <h2>You're All Set!</h2>
-                <p>Start by clicking <strong>"+ Add Habit"</strong> or pick a <strong>Template pack</strong> to populate your tracker instantly. Drag habits to reorder them. Right-click a ✓ to add a note.</p>
-                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                    <button class="btn" id="obTemplateBtn">📦 Browse Templates</button>
-                    <button class="btn btn-outline" id="obCloseBtn">Get Started!</button>
-                </div>
+        <div class="ob-step active" id="ob-step-1">
+            <div class="ob-emoji">🌱</div>
+            <h2>Welcome, Future Legend!</h2>
+            <p>Track daily habits, earn XP, unlock badges, and evolve from a <strong>Seedling 🌱</strong> to a <strong>Legend 🦁</strong>.</p>
+            <button class="btn" onclick="document.getElementById('ob-step-1').classList.remove('active');document.getElementById('ob-step-2').classList.add('active');">Next →</button>
+        </div>
+        <div class="ob-step" id="ob-step-2">
+            <div class="ob-emoji">🍅</div>
+            <h2>Focus & Achieve</h2>
+            <p>Use the <strong>Pomodoro Timer</strong> to stay laser-focused on one habit at a time. Enter <strong>Focus Mode</strong> for a distraction-free checklist.</p>
+            <button class="btn" onclick="document.getElementById('ob-step-2').classList.remove('active');document.getElementById('ob-step-3').classList.add('active');">Next →</button>
+        </div>
+        <div class="ob-step" id="ob-step-3">
+            <div class="ob-emoji">🚀</div>
+            <h2>You're All Set!</h2>
+            <p>Start with <strong>"+ Add Habit"</strong>, pick a <strong>Template pack</strong>, or press <strong>?</strong> anytime to see keyboard shortcuts.</p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn" id="obTemplateBtn">📦 Browse Templates</button>
+                <button class="btn btn-outline" id="obCloseBtn">Get Started!</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Milestone Toast -->
+<!-- Toast + Confetti -->
 <div id="milestoneToast" class="milestone-toast" style="display:none;"></div>
-
-<!-- Confetti Canvas -->
 <canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9997;"></canvas>
 
 <script type="module" src="app.js"></script>
