@@ -108,11 +108,22 @@ const $ = id => document.getElementById(id);
 
 // ─── Boot: load localStorage immediately, show app, then sync Firebase ────────
 (function boot() {
-    // Try to load from localStorage right away (no login needed)
-    const saved = localStorage.getItem('habitData_guest');
-    if (saved) {
-        try { state = JSON.parse(saved); } catch(e) { state = getDefaultState(); }
-        migrateState();
+    // 1. Try new unified key
+    let raw = localStorage.getItem('habitData_guest');
+    // 2. Fall back to any old habitBackup_ key from previous Firebase sessions
+    if (!raw) {
+        const oldKey = Object.keys(localStorage).find(k => k.startsWith('habitBackup_'));
+        if (oldKey) raw = localStorage.getItem(oldKey);
+    }
+    if (raw) {
+        try { state = JSON.parse(raw); } catch(e) { state = getDefaultState(); }
+    } else {
+        state = getDefaultState();
+    }
+    migrateState();
+    // Guarantee we always have default habits if none loaded
+    if (!state.habits || state.habits.length === 0) {
+        state.habits = getDefaultState().habits;
     }
 
     // Show app container immediately
@@ -154,14 +165,11 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function updateAuthUI(user) {
-    const loginScreen  = $('loginScreen');
-    const logoutBtn    = $('logoutBtn');
-    const googleSignIn = $('googleSignInBtn');
+    const logoutBtn = $('logoutBtn');
     if (user) {
-        if (loginScreen)  loginScreen.style.display  = 'none';
-        if (logoutBtn)    logoutBtn.textContent       = `Sign Out (${user.displayName?.split(' ')[0] || 'Me'})`;
+        if (logoutBtn) logoutBtn.textContent = `Sign Out (${user.displayName?.split(' ')[0] || 'Me'})`;
     } else {
-        if (logoutBtn)    logoutBtn.textContent       = 'Sign In';
+        if (logoutBtn) logoutBtn.textContent = '☁️ Sign In';
     }
 }
 
