@@ -1,23 +1,7 @@
-// Remove render-blocking static imports
-let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged;
-let getFirestore, doc, setDoc, getDoc;
-let auth = null;
-let db = null;
-
 // ─── PWA Service Worker ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js').catch(() => {});
 }
-
-// ─── Firebase Config ──────────────────────────────────────────────────────────
-const firebaseConfig = {
-    apiKey: "AIzaSyBvc1bpouW3NCAp2wdMQbdSCmBiOH1SsYk",
-    authDomain: "habit-tracker-3e772.firebaseapp.com",
-    projectId: "habit-tracker-3e772",
-    storageBucket: "habit-tracker-3e772.firebasestorage.app",
-    messagingSenderId: "271076844504",
-    appId: "1:271076844504:web:f89b1febca82bb6d3fc8ad"
-};
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const XP_MAP    = { easy: 5, medium: 10, hard: 20 };
@@ -145,74 +129,7 @@ const $ = id => document.getElementById(id);
     }
 })();
 
-// ─── Firebase Auth (background sync) ─────────────────────────────────────────
-// Defer loading heavy Firebase libraries until UI is fully responsive
-setTimeout(async () => {
-    try {
-        const [appModule, authModule, dbModule] = await Promise.all([
-            import("https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js"),
-            import("https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js"),
-            import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js")
-        ]);
-
-        initializeApp = appModule.initializeApp;
-        getAuth = authModule.getAuth;
-        GoogleAuthProvider = authModule.GoogleAuthProvider;
-        signInWithPopup = authModule.signInWithPopup;
-        signOut = authModule.signOut;
-        onAuthStateChanged = authModule.onAuthStateChanged;
-        
-        getFirestore = dbModule.getFirestore;
-        doc = dbModule.doc;
-        setDoc = dbModule.setDoc;
-        getDoc = dbModule.getDoc;
-        
-        const fbApp = initializeApp(firebaseConfig);
-        auth = getAuth(fbApp);
-        db = getFirestore(fbApp);
-
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            updateAuthUI(user);
-            if (user) {
-                const uid = user.uid;
-                try {
-                    const snap = await getDoc(doc(db, 'users', uid));
-                    if (snap.exists()) {
-                        state = snap.data();
-                        migrateState();
-                        localStorage.setItem('habitData_guest', JSON.stringify(state));
-                    } else {
-                        await setDoc(doc(db, 'users', uid), state);
-                    }
-                } catch(e) { console.warn('Firebase sync failed', e); }
-                renderAll();
-                checkDailyLoginBonus();
-            }
-        });
-    } catch(e) {
-        console.warn('Failed to load Firebase', e);
-    }
-}, 800); // Wait 800ms so main thread finishes booting app UI first
-
-function updateAuthUI(user) {
-    const logoutBtn = $('logoutBtn');
-    if (user) {
-        if (logoutBtn) logoutBtn.textContent = `Sign Out (${user.displayName?.split(' ')[0] || 'Me'})`;
-    } else {
-        if (logoutBtn) logoutBtn.textContent = '☁️ Sign In';
-    }
-}
-
-$('googleSignInBtn')?.addEventListener('click', () => {
-    if (!auth || !signInWithPopup) return showToast('Connecting to cloud... Try again in a sec!');
-    signInWithPopup(auth, new GoogleAuthProvider()).catch(e => showToast('Sign-in failed: ' + e.message));
-});
-$('logoutBtn')?.addEventListener('click', () => {
-    if (!auth || !signInWithPopup) return showToast('Connecting to cloud... Try again in a sec!');
-    if (currentUser && signOut) signOut(auth);
-    else signInWithPopup(auth, new GoogleAuthProvider()).catch(e => showToast('Sign-in failed: ' + e.message));
-});
+// (Firebase and Cloud Sync removed - 100% localhost focused)
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 async function saveState() {
@@ -220,12 +137,6 @@ async function saveState() {
     lastSaveTime = Date.now();
     localStorage.setItem('habitData_guest', JSON.stringify(state));
     renderAll();
-    if (!currentUser || !setDoc || !doc || !db) return;
-    try {
-        await setDoc(doc(db, 'users', currentUser.uid), state);
-    } catch(e) {
-        console.warn('Cloud save failed:', e);
-    }
 }
 
 // ─── Render all ──────────────────────────────────────────────────────────────
