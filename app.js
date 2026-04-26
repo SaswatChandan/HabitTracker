@@ -94,6 +94,7 @@ function migrateState() {
     if (state.xp    === undefined) state.xp    = 0;
     if (state.level === undefined) state.level = 1;
     state.habits.forEach(h => {
+        if (!h.completed)  h.completed  = {};
         if (!h.notes)      h.notes      = {};
         if (!h.color)      h.color      = '#7c3aed';
         if (!h.frequency)  h.frequency  = 'daily';
@@ -107,35 +108,41 @@ const $ = id => document.getElementById(id);
 
 // ─── Boot: load localStorage immediately, show app, then sync Firebase ────────
 (function boot() {
-    // 1. Try new unified key
-    let raw = localStorage.getItem('habitData_guest');
-    // 2. Fall back to any old habitBackup_ key from previous Firebase sessions
-    if (!raw) {
-        const oldKey = Object.keys(localStorage).find(k => k.startsWith('habitBackup_'));
-        if (oldKey) raw = localStorage.getItem(oldKey);
-    }
-    if (raw) {
-        try { state = JSON.parse(raw); } catch(e) { state = getDefaultState(); }
-    } else {
+    try {
+        // 1. Try new unified key
+        let raw = localStorage.getItem('habitData_guest');
+        // 2. Fall back to any old habitBackup_ key from previous Firebase sessions
+        if (!raw) {
+            const oldKey = Object.keys(localStorage).find(k => k.startsWith('habitBackup_'));
+            if (oldKey) raw = localStorage.getItem(oldKey);
+        }
+        if (raw) {
+            try { state = JSON.parse(raw); if(!state || typeof state !== 'object') state = getDefaultState(); } catch(e) { state = getDefaultState(); }
+        } else {
+            state = getDefaultState();
+        }
+        migrateState();
+        // Guarantee we always have default habits if none loaded
+        if (!state.habits || state.habits.length === 0 || !Array.isArray(state.habits)) {
+            state.habits = getDefaultState().habits;
+        }
+
+        // Show app container immediately
+        const appContainer = $('appContainer');
+        if (appContainer) appContainer.style.display = 'block';
+
+        applyTheme(currentTheme);
+        renderAll();
+        checkDailyLoginBonus();
+        if (!state.onboardingDone) showOnboarding();
+        scheduleReminder();
+    } catch(err) {
+        console.error("Boot crash! Resetting corrupt state:", err);
+        // Absolute worst case fallback - reset to default so app doesn't freeze
         state = getDefaultState();
+        localStorage.setItem('habitData_guest', JSON.stringify(state));
+        renderAll();
     }
-    migrateState();
-    // Guarantee we always have default habits if none loaded
-    if (!state.habits || state.habits.length === 0) {
-        state.habits = getDefaultState().habits;
-    }
-
-    // Show app container immediately
-    const appContainer = $('appContainer');
-    const loginScreen  = $('loginScreen');
-    if (appContainer) appContainer.style.display = 'block';
-    if (loginScreen)  loginScreen.style.display  = 'none';
-
-    applyTheme(currentTheme);
-    renderAll();
-    checkDailyLoginBonus();
-    if (!state.onboardingDone) showOnboarding();
-    scheduleReminder();
 })();
 
 // ─── Firebase Auth (background sync) ─────────────────────────────────────────
