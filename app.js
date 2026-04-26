@@ -459,7 +459,7 @@ function checkDailyLoginBonus() {
 
 // ─── Charts ───────────────────────────────────────────────────────────────────
 function updateCharts() {
-    if (!$('pieChart')||typeof Chart==='undefined') return;
+    if (!$('pieChart')||typeof Chart==='undefined'||!state||!state.habits) return;
     let total=state.habits.length*dates.length, done=0;
     const hd=state.habits.map(h=>{const c=dates.filter(d=>h.completed[dateToKey(d)]).length;done+=c;return{n:h.name.split(' ')[0],c,col:h.color||'#7c3aed'};});
     if(pieChartInstance)pieChartInstance.destroy();
