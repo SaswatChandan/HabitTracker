@@ -1,13 +1,15 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+// Remove render-blocking static imports
+let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged;
+let getFirestore, doc, setDoc, getDoc;
+let auth = null;
+let db = null;
 
 // ─── PWA Service Worker ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js').catch(() => {});
 }
 
-// ─── Firebase ─────────────────────────────────────────────────────────────────
+// ─── Firebase Config ──────────────────────────────────────────────────────────
 const firebaseConfig = {
     apiKey: "AIzaSyBvc1bpouW3NCAp2wdMQbdSCmBiOH1SsYk",
     authDomain: "habit-tracker-3e772.firebaseapp.com",
@@ -16,9 +18,6 @@ const firebaseConfig = {
     messagingSenderId: "271076844504",
     appId: "1:271076844504:web:f89b1febca82bb6d3fc8ad"
 };
-const fbApp = initializeApp(firebaseConfig);
-const auth  = getAuth(fbApp);
-const db    = getFirestore(fbApp);
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const XP_MAP    = { easy: 5, medium: 10, hard: 20 };
@@ -140,29 +139,54 @@ const $ = id => document.getElementById(id);
 })();
 
 // ─── Firebase Auth (background sync) ─────────────────────────────────────────
-onAuthStateChanged(auth, async (user) => {
-    currentUser = user;
-    updateAuthUI(user);
-    if (user) {
-        const uid = user.uid;
-        // Merge cloud data
-        try {
-            const snap = await getDoc(doc(db, 'users', uid));
-            if (snap.exists()) {
-                state = snap.data();
-                migrateState();
-                localStorage.setItem('habitData_guest', JSON.stringify(state));
-            } else {
-                // First time cloud user — push local state up
-                await setDoc(doc(db, 'users', uid), state);
+// Defer loading heavy Firebase libraries until UI is fully responsive
+setTimeout(async () => {
+    try {
+        const [appModule, authModule, dbModule] = await Promise.all([
+            import("https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js"),
+            import("https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js"),
+            import("https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js")
+        ]);
+
+        initializeApp = appModule.initializeApp;
+        getAuth = authModule.getAuth;
+        GoogleAuthProvider = authModule.GoogleAuthProvider;
+        signInWithPopup = authModule.signInWithPopup;
+        signOut = authModule.signOut;
+        onAuthStateChanged = authModule.onAuthStateChanged;
+        
+        getFirestore = dbModule.getFirestore;
+        doc = dbModule.doc;
+        setDoc = dbModule.setDoc;
+        getDoc = dbModule.getDoc;
+        
+        const fbApp = initializeApp(firebaseConfig);
+        auth = getAuth(fbApp);
+        db = getFirestore(fbApp);
+
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            updateAuthUI(user);
+            if (user) {
+                const uid = user.uid;
+                try {
+                    const snap = await getDoc(doc(db, 'users', uid));
+                    if (snap.exists()) {
+                        state = snap.data();
+                        migrateState();
+                        localStorage.setItem('habitData_guest', JSON.stringify(state));
+                    } else {
+                        await setDoc(doc(db, 'users', uid), state);
+                    }
+                } catch(e) { console.warn('Firebase sync failed', e); }
+                renderAll();
+                checkDailyLoginBonus();
             }
-        } catch(e) {
-            console.warn('Firebase sync failed, using local data', e);
-        }
-        renderAll();
-        checkDailyLoginBonus();
+        });
+    } catch(e) {
+        console.warn('Failed to load Firebase', e);
     }
-});
+}, 800); // Wait 800ms so main thread finishes booting app UI first
 
 function updateAuthUI(user) {
     const logoutBtn = $('logoutBtn');
@@ -173,11 +197,13 @@ function updateAuthUI(user) {
     }
 }
 
-$('googleSignInBtn')?.addEventListener('click', () =>
-    signInWithPopup(auth, new GoogleAuthProvider()).catch(e => showToast('Sign-in failed: ' + e.message))
-);
+$('googleSignInBtn')?.addEventListener('click', () => {
+    if (!auth || !signInWithPopup) return showToast('Connecting to cloud... Try again in a sec!');
+    signInWithPopup(auth, new GoogleAuthProvider()).catch(e => showToast('Sign-in failed: ' + e.message));
+});
 $('logoutBtn')?.addEventListener('click', () => {
-    if (currentUser) signOut(auth);
+    if (!auth || !signInWithPopup) return showToast('Connecting to cloud... Try again in a sec!');
+    if (currentUser && signOut) signOut(auth);
     else signInWithPopup(auth, new GoogleAuthProvider()).catch(e => showToast('Sign-in failed: ' + e.message));
 });
 
@@ -187,7 +213,7 @@ async function saveState() {
     lastSaveTime = Date.now();
     localStorage.setItem('habitData_guest', JSON.stringify(state));
     renderAll();
-    if (!currentUser) return;
+    if (!currentUser || !setDoc || !doc || !db) return;
     try {
         await setDoc(doc(db, 'users', currentUser.uid), state);
     } catch(e) {
@@ -551,8 +577,26 @@ function checkDailyLoginBonus() {
 }
 
 // ─── Charts ───────────────────────────────────────────────────────────────────
-function updateCharts() {
-    if (!$('pieChart') || typeof Chart === 'undefined' || !state?.habits?.length) return;
+// ─── Charts ───────────────────────────────────────────────────────────────────
+let chartJsLoaded = false;
+async function lazyLoadChartJS() {
+    if (chartJsLoaded || typeof Chart !== 'undefined') return true;
+    return new Promise((resolve) => {
+        const s = document.createElement('script');
+        s.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js";
+        s.onload = () => resolve(true);
+        s.onerror = () => resolve(false);
+        document.head.appendChild(s);
+    });
+}
+
+async function updateCharts() {
+    if (!$('pieChart') || !state?.habits?.length) return;
+    
+    // Lazy-load the heavy Chart.js library only when we actually draw charts
+    await lazyLoadChartJS();
+    if (typeof Chart === 'undefined') return;
+
     let done = 0;
     const hd = state.habits.map(h => {
         const c = dates.filter(d => h.completed[dateToKey(d)]).length;

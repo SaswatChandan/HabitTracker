@@ -10,9 +10,39 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%234F46E5'/><stop offset='100%25' stop-color='%23EC4899'/></linearGradient></defs><path d='M50 15 L85 35 L85 70 L50 90 L15 70 L15 35 Z' fill='none' stroke='url(%23g)' stroke-width='6'/><path d='M50 35 L75 50 L50 65 L25 50 Z' fill='url(%23g)' opacity='0.8'/></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <!-- DNS prefetch for all external domains (zero-cost speed boost) -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+
+    <!-- Preconnect to font servers — opens TCP/TLS early -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Non-blocking Google Fonts: load async, no render blocking -->
+    <link rel="preload" as="style"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    </noscript>
+
+    <!-- Inline critical CSS: forces correct font-stack + bg color immediately so there's NO flash -->
+    <style>
+        :root { --bg:#0b0c10; }
+        body { background-color: var(--bg); font-family: Inter, system-ui, -apple-system, sans-serif; margin:0; }
+        #appContainer { display:none; }
+    </style>
+
+    <!-- Our stylesheet: preloaded for speed -->
+    <link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
+
+    <!-- Modulepreload: browser fetches app.js in parallel with HTML parse -->
+    <link rel="modulepreload" href="app.js">
 </head>
 <body>
 
