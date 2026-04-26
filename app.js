@@ -10,6 +10,15 @@ const POM_WORK  = 25 * 60;
 const POM_BREAK = 5  * 60;
 const POM_CIRCUM = 289; // 2π×46
 
+const THEMES = [
+    { id:'dark',     label:'🌑 Dark',     bg:'#0b0c10', a1:'#4f46e5', a2:'#ec4899' },
+    { id:'light',    label:'☀️ Light',    bg:'#f4f6fb', a1:'#4f46e5', a2:'#ec4899' },
+    { id:'ocean',    label:'🌊 Ocean',    bg:'#05111f', a1:'#0ea5e9', a2:'#06b6d4' },
+    { id:'sunset',   label:'🌅 Sunset',   bg:'#180b06', a1:'#f97316', a2:'#ec4899' },
+    { id:'forest',   label:'🌿 Forest',   bg:'#061410', a1:'#10b981', a2:'#22c55e' },
+    { id:'midnight', label:'🌙 Midnight', bg:'#08051a', a1:'#7c3aed', a2:'#a855f7' },
+];
+
 // ─── Date helpers ─────────────────────────────────────────────────────────────
 let currentDate = new Date();
 currentDate.setHours(0, 0, 0, 0);
@@ -174,14 +183,6 @@ function showToast(msg) {
 }
 
 // ─── Themes ───────────────────────────────────────────────────────────────────
-const THEMES = [
-    { id:'dark',     label:'🌑 Dark',     bg:'#0b0c10', a1:'#4f46e5', a2:'#ec4899' },
-    { id:'light',    label:'☀️ Light',    bg:'#f4f6fb', a1:'#4f46e5', a2:'#ec4899' },
-    { id:'ocean',    label:'🌊 Ocean',    bg:'#05111f', a1:'#0ea5e9', a2:'#06b6d4' },
-    { id:'sunset',   label:'🌅 Sunset',   bg:'#180b06', a1:'#f97316', a2:'#ec4899' },
-    { id:'forest',   label:'🌿 Forest',   bg:'#061410', a1:'#10b981', a2:'#22c55e' },
-    { id:'midnight', label:'🌙 Midnight', bg:'#08051a', a1:'#7c3aed', a2:'#a855f7' },
-];
 function applyTheme(theme) {
     currentTheme = theme;
     localStorage.setItem('theme', theme);
